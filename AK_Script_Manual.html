@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AK Script Manual｜Ch2 腳本承諾兌現與留存診斷</title>
+<style>
+:root{
+  --bg:#0f172a;
+  --panel:#111827;
+  --panel2:#1f2937;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --blue:#2563eb;
+  --cyan:#0891b2;
+  --green:#059669;
+  --amber:#d97706;
+  --red:#dc2626;
+  --purple:#7c3aed;
+  --soft:#f8fafc;
+  --soft-blue:#eff6ff;
+  --soft-green:#ecfdf5;
+  --soft-amber:#fffbeb;
+  --soft-red:#fef2f2;
+  --soft-purple:#f5f3ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif;
+  background:linear-gradient(135deg,#0f172a 0%,#1e293b 45%,#0e7490 120%);
+  color:var(--text);
+  line-height:1.72;
+}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+.sidebar{
+  position:sticky;top:0;height:100vh;overflow:auto;
+  background:rgba(15,23,42,.96);color:white;padding:24px 18px;border-right:1px solid rgba(255,255,255,.08)
+}
+.brand{font-weight:800;font-size:20px;line-height:1.2;margin-bottom:8px}
+.version{display:inline-block;background:#164e63;color:#cffafe;padding:4px 8px;border-radius:999px;font-size:12px;margin-bottom:18px}
+.nav a{
+  display:block;color:#dbeafe;padding:10px 12px;border-radius:10px;margin:4px 0;font-size:14px
+}
+.nav a:hover{background:rgba(255,255,255,.08);text-decoration:none;color:white}
+.main{padding:28px;max-width:1180px;width:100%;margin:0 auto}
+.hero{
+  background:rgba(255,255,255,.98);border-radius:28px;padding:34px;box-shadow:0 22px 60px rgba(0,0,0,.24);margin-bottom:22px
+}
+.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-.5px}
+.hero p{font-size:17px;color:#374151;margin:8px 0}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.badge{font-size:13px;border-radius:999px;padding:6px 10px;background:var(--soft-blue);color:#1d4ed8;font-weight:650}
+.section{
+  background:rgba(255,255,255,.98);border-radius:24px;padding:28px;margin:22px 0;box-shadow:0 10px 30px rgba(0,0,0,.16)
+}
+.section h2{font-size:25px;margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.section h3{font-size:19px;margin:24px 0 10px}
+.section h4{font-size:16px;margin:18px 0 8px}
+.note,.warning,.ok,.danger,.tool-note{
+  border-radius:16px;padding:14px 16px;margin:14px 0;border:1px solid
+}
+.note{background:var(--soft-blue);border-color:#bfdbfe}
+.warning{background:var(--soft-amber);border-color:#fde68a}
+.ok{background:var(--soft-green);border-color:#bbf7d0}
+.danger{background:var(--soft-red);border-color:#fecaca}
+.tool-note{background:var(--soft-purple);border-color:#ddd6fe}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{
+  border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff
+}
+.card h3,.card h4{margin-top:0}
+.small{font-size:13px;color:var(--muted)}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input,select,textarea{
+  width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:11px 12px;font-size:15px;background:white
+}
+textarea{min-height:90px;resize:vertical}
+.help{font-size:13px;color:#4b5563;margin-top:4px}
+button{
+  appearance:none;border:0;border-radius:14px;background:var(--blue);color:white;
+  padding:12px 18px;font-weight:800;font-size:15px;cursor:pointer;margin-top:14px
+}
+button.secondary{background:#334155}
+button:hover{filter:brightness(.95)}
+.result{
+  border-radius:18px;padding:18px;margin-top:18px;border:1px solid var(--line);background:#f8fafc
+}
+.result.pass{background:var(--soft-green);border-color:#bbf7d0}
+.result.warn{background:var(--soft-amber);border-color:#fde68a}
+.result.fail{background:var(--soft-red);border-color:#fecaca}
+.kv{display:grid;grid-template-columns:180px 1fr;border-top:1px solid var(--line)}
+.kv div{padding:10px;border-bottom:1px solid var(--line)}
+.kv div:nth-child(odd){font-weight:700;background:#f8fafc}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:12px 13px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:#f1f5f9;font-weight:800}
+tr:last-child td{border-bottom:0}
+.code{
+  background:#0f172a;color:#e5e7eb;border-radius:14px;padding:14px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px
+}
+.pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800;margin:2px}
+.pill.green{background:#dcfce7;color:#166534}
+.pill.amber{background:#fef3c7;color:#92400e}
+.pill.red{background:#fee2e2;color:#991b1b}
+.pill.blue{background:#dbeafe;color:#1e40af}
+.pill.purple{background:#ede9fe;color:#5b21b6}
+details{
+  border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:12px 0;background:#fff
+}
+summary{cursor:pointer;font-weight:800}
+footer{color:#cbd5e1;text-align:center;margin:30px 0 10px;font-size:13px}
+@media(max-width:880px){
+  .layout{display:block}
+  .sidebar{position:relative;height:auto}
+  .main{padding:16px}
+  .grid,.grid3{grid-template-columns:1fr}
+  .hero h1{font-size:28px}
+  .kv{grid-template-columns:1fr}
+}
+@media print{
+  body{background:white}
+  .sidebar{display:none}
+  .layout{display:block}
+  .main{max-width:none}
+  .section,.hero{box-shadow:none;border:1px solid #ddd}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">AK Script Manual</div>
+    <div class="version">v1.0｜Ch2 腳本工具</div>
+    <div class="nav">
+      <a href="#tool">🧪 Script 快速診斷器</a>
+      <a href="#how">🚦 這工具怎麼用</a>
+      <a href="#definition">01｜Script 是什麼</a>
+      <a href="#structure">02｜四段式結構</a>
+      <a href="#types">03｜腳本類型</a>
+      <a href="#clickbait">04｜Clickbait 邊界</a>
+      <a href="#diagnosis">05｜失效診斷表</a>
+      <a href="#checklist">06｜發布前檢查</a>
+      <a href="#abtest">07｜A/B Test</a>
+      <a href="#cta">08｜CTA / DM 對齊</a>
+      <a href="#glossary">📘 名詞快查</a>
+      <a href="#mapping">⚙️ Tool Mapping</a>
+      <a href="#source">🔎 Evidence 分級</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h1>AK Script Manual｜腳本承諾兌現與留存診斷</h1>
+      <p><strong>Script 不是把話講完。</strong>它的任務是接住 Hook、維持留存、建立信任，並讓 CTA 成為合理下一步。</p>
+      <p>這份手冊的主要使用區是下方的 <strong>Script 快速診斷器</strong>。其他章節是查表與教學參考。</p>
+      <div class="badges">
+        <span class="badge">承諾兌現</span>
+        <span class="badge">Retention 診斷</span>
+        <span class="badge">Trust Signal</span>
+        <span class="badge">CTA 鋪陳</span>
+        <span class="badge">v6.5 Metadata</span>
+      </div>
+    </section>
+
+    <section class="section" id="tool">
+      <h2>🧪 Script 快速診斷器</h2>
+      <div class="note">
+        <strong>主要用途：</strong>把你的 Hook、Script 前 10 秒、CTA 與發布後數據放進來，判斷問題比較可能出在「Hook 承諾沒接住」、「中段太平」、「資訊過載」、「缺乏信任」或「CTA 鋪陳不足」。
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="hookText">Hook｜開頭承諾</label>
+          <textarea id="hookText" placeholder="例：你是不是每天發內容，但完全沒人私訊？"></textarea>
+          <div class="help">怎麼填：填影片最前面的開頭句或標題承諾。用意：檢查 Script 是否有接住這個承諾。</div>
+        </div>
+        <div>
+          <label for="scriptFirst">Script 前 10 秒</label>
+          <textarea id="scriptFirst" placeholder="例：問題不一定是內容差，而是你前 10 秒沒有讓觀眾看到這支影片跟他有關。"></textarea>
+          <div class="help">怎麼填：填 Hook 後第一段內容。用意：檢查有沒有自我介紹、抽象鋪陳或承諾斷裂。</div>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div>
+          <label for="scriptType">Script 類型</label>
+          <select id="scriptType">
+            <option value="teaching">教學型</option>
+            <option value="story">故事型</option>
+            <option value="case">案例拆解型</option>
+            <option value="anti">反直覺觀點型</option>
+          </select>
+          <div class="help">用意：不同腳本類型適合不同 CTA 與 Performance 指標。</div>
+        </div>
+        <div>
+          <label for="ctaType">CTA 方向</label>
+          <select id="ctaType">
+            <option value="dm">私訊承接型</option>
+            <option value="question">真實問題型</option>
+            <option value="save">收藏型</option>
+            <option value="extend">延伸觀看型</option>
+            <option value="application">申請 / 表單型</option>
+          </select>
+          <div class="help">用意：檢查 Script 是否有替這個下一步鋪陳理由。</div>
+        </div>
+        <div>
+          <label for="platform">平台</label>
+          <select id="platform">
+            <option value="yt">YouTube / Shorts</option>
+            <option value="ig">Instagram Reels</option>
+            <option value="fb">Facebook Reels</option>
+          </select>
+          <div class="help">用意：不同平台看數據的方式不同，但 Script 診斷邏輯相通。</div>
+        </div>
+      </div>
+
+      <h3>發布後數據（沒有可以先留空）</h3>
+      <div class="grid3">
+        <div>
+          <label for="ctr">CTR / Stop Rate</label>
+          <input id="ctr" type="number" step="0.1" placeholder="例：4.5" />
+          <div class="help">白話：有多少人願意點進來或停下來。用來判斷 Hook / 包裝是否有效。</div>
+        </div>
+        <div>
+          <label for="retention10">前 10 秒留存率 %</label>
+          <input id="retention10" type="number" step="0.1" placeholder="例：55" />
+          <div class="help">白話：看了前 10 秒的人有多少還在。用來判斷 Script 是否接住 Hook。</div>
+        </div>
+        <div>
+          <label for="dmCount">DM / 下一步動作數</label>
+          <input id="dmCount" type="number" step="1" placeholder="例：3" />
+          <div class="help">白話：看完後有多少人真的走下一步。用來判斷 CTA 鋪陳與信任是否足夠。</div>
+        </div>
+      </div>
+
+      <button onclick="diagnoseScript()">開始診斷</button>
+      <button class="secondary" onclick="resetForm()">清空</button>
+      <div id="diagResult" class="result" style="display:none"></div>
+
+      <details>
+        <summary>欄位怎麼填？去哪裡找？</summary>
+        <table>
+          <thead><tr><th>欄位</th><th>你要填什麼</th><th>沒有數字怎麼辦</th></tr></thead>
+          <tbody>
+            <tr><td>Hook</td><td>影片最前面的承諾、標題或第一句話。</td><td>先填你預計講的第一句。</td></tr>
+            <tr><td>Script 前 10 秒</td><td>Hook 後第一段內容。包含你如何接住問題。</td><td>先貼草稿前 2–4 句。</td></tr>
+            <tr><td>CTR / Stop Rate</td><td>YouTube 看 CTR；短影音可用前 1–3 秒停留感或平台相關數據替代。</td><td>空白也能診斷文字問題。</td></tr>
+            <tr><td>前 10 秒留存</td><td>Retention / Audience Retention 曲線中的前段留存。</td><td>先用「觀眾是不是很快滑走」做主觀初判。</td></tr>
+            <tr><td>DM / 下一步動作</td><td>私訊、留言中的真實問題、收藏、點擊、表單。</td><td>填 0 或空白。</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section class="section" id="how">
+      <h2>🚦這個工具怎麼用？</h2>
+      <div class="grid3">
+        <div class="card"><h3>Step 1｜先填草稿</h3><p>把 Hook 和 Script 前 10 秒貼進診斷器。這一步先不用追求完美。</p></div>
+        <div class="card"><h3>Step 2｜看診斷</h3><p>工具會判斷是否有承諾斷裂、自我介紹、過度承諾、缺信任或 CTA 鋪陳不足。</p></div>
+        <div class="card"><h3>Step 3｜發布後回填數據</h3><p>發布後再把前 10 秒留存、DM、互動等數據填回來，判斷下一支影片要修哪裡。</p></div>
+      </div>
+      <div class="warning"><strong>重要：</strong>本工具不是爆款保證器。它用來降低腳本犯錯率，尤其是避免 Hook 吸引人，但 Script 接不住。</div>
+    </section>
+
+    <section class="section" id="definition">
+      <h2>01｜Script 是什麼？</h2>
+      <p><strong>白話版：</strong>Script 是影片的主體內容。它不是把所有資訊講完，而是讓觀眾相信「這支影片值得繼續看」，並自然走向下一步。</p>
+      <div class="code">Script = 承諾兌現 + 留存維持 + 信任建立 + CTA 鋪陳</div>
+      <table>
+        <thead><tr><th>任務</th><th>白話意思</th><th>用來判斷什麼</th></tr></thead>
+        <tbody>
+          <tr><td>承諾兌現</td><td>Hook 說了什麼，Script 第一段就要回應。</td><td>前 10 秒留存是否急墜。</td></tr>
+          <tr><td>留存維持</td><td>讓觀眾中段不覺得無聊、混亂或被騙。</td><td>Retention、AVD、Dips。</td></tr>
+          <tr><td>信任建立</td><td>提供案例、過程、證據或真實經驗。</td><td>互動品質、DM 意願。</td></tr>
+          <tr><td>CTA 鋪陳</td><td>讓下一步行動變合理，而不是突然推銷。</td><td>DM Count、收藏、點擊、留言品質。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="structure">
+      <h2>02｜四段式 Script 結構</h2>
+      <div class="tool-note"><strong>這張表怎麼用：</strong>寫腳本時從上到下檢查。不是每支影片都要一模一樣秒數，但每段任務都要存在。</div>
+      <table>
+        <thead><tr><th>段落</th><th>白話意思</th><th>常見錯誤</th><th>修正方向</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Anchor Beat</strong><br><span class="small">承接段</span></td><td>立刻接住 Hook 的問題。</td><td>開始自我介紹、寒暄、講背景。</td><td>第一句直接回應 Hook 關鍵字。</td></tr>
+          <tr><td><strong>Trust Baseline</strong><br><span class="small">信任基線</span></td><td>給觀眾一個相信你的理由。</td><td>只說觀念，沒有案例或證據。</td><td>加入真實案例、過程、數據、踩過的錯。</td></tr>
+          <tr><td><strong>Value Core</strong><br><span class="small">核心價值</span></td><td>交付一個明確收穫。</td><td>太空泛或塞太多概念。</td><td>一支影片只解一個具體問題。</td></tr>
+          <tr><td><strong>Gap Open</strong><br><span class="small">行動鋪陳</span></td><td>留下合理下一步。</td><td>看完就結束，或突然硬推銷。</td><td>把完整清單、對照表、下一步診斷放到安全 CTA。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="types">
+      <h2>03｜Script 類型</h2>
+      <div class="tool-note"><strong>這張表怎麼用：</strong>先選你的內容目的，再選 Script 類型。不要每支影片都用同一種結構。</div>
+      <table>
+        <thead><tr><th>類型</th><th>適合目的</th><th>適合 CTA</th><th>風險</th></tr></thead>
+        <tbody>
+          <tr><td>教學型</td><td>快速提供方法，建立實用感。</td><td>收藏型 / 延伸觀看型 / 私訊清單</td><td>太完整會讓觀眾看完就走。</td></tr>
+          <tr><td>故事型</td><td>建立信任，降低防禦。</td><td>真實問題型 / 私訊承接型</td><td>鋪陳太長會掉留存。</td></tr>
+          <tr><td>案例拆解型</td><td>展示能力與證據。</td><td>私訊承接型 / 申請型</td><td>數據誇大會接近 Clickbait。</td></tr>
+          <tr><td>反直覺觀點型</td><td>打破認知，製造注意力。</td><td>討論型 / 收藏型 / 私訊型</td><td>內容支撐不足會變標題黨。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="clickbait">
+      <h2>04｜Script 與 Clickbait 邊界</h2>
+      <div class="danger">
+        <strong>核心規則：</strong>Hook、標題或封面承諾的內容，Script 必須提供對應內容。否則就不是「吸引人」，而是有 Clickbait 風險。
+      </div>
+      <table>
+        <thead><tr><th>危險情況</th><th>為什麼危險</th><th>安全改法</th></tr></thead>
+        <tbody>
+          <tr><td>Hook 說「一個錯誤讓你流量歸零」，Script 卻講心態。</td><td>承諾和內容斷裂。</td><td>第一段直接指出那個具體錯誤。</td></tr>
+          <tr><td>Hook 承諾具體數字，但沒有證據。</td><td>容易被視為誇大。</td><td>補案例背景、數據來源或改成個人經驗。</td></tr>
+          <tr><td>標題很刺激，但內容很普通。</td><td>可能出現高 CTR + 低 Retention。</td><td>降低標題承諾，讓內容能兌現。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="diagnosis">
+      <h2>05｜Script 失效診斷表</h2>
+      <div class="tool-note"><strong>這張表怎麼用：</strong>發布後先看數據現象，再回推要修 Hook、Script、CTA 還是題材。</div>
+      <table>
+        <thead><tr><th>數據現象</th><th>可能問題</th><th>優先檢查</th><th>下一步</th></tr></thead>
+        <tbody>
+          <tr><td>CTR / Stop Rate 低</td><td>Hook 或包裝弱</td><td>Hook、標題、首幀</td><td>重寫開頭與標題</td></tr>
+          <tr><td>Stop Rate 高，但 10s Retention 急墜</td><td>Anchor Beat 未接住 Hook</td><td>前 10 秒 Script</td><td>刪掉自我介紹，直接承接 Hook</td></tr>
+          <tr><td>中段 Dips 密集</td><td>資訊密度失衡或節奏太平</td><td>Value Core</td><td>拆成單一問題，增加例子與轉折</td></tr>
+          <tr><td>Retention 高但 DM 低</td><td>CTA 鋪陳不足或信任不足</td><td>CTA 前 5 秒</td><td>降低行動阻力，改安全 CTA</td></tr>
+          <tr><td>Views 高但 DM 低</td><td>受眾不精準或 Script 太泛</td><td>受眾篩選</td><td>加入情境限制與目標受眾</td></tr>
+          <tr><td>完播高但無行動</td><td>內容太完整，沒有合理下一步</td><td>Gap Open</td><td>留下清單、檢查表或下一步診斷</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="checklist">
+      <h2>06｜Script 發布前檢查清單</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>承諾與留存</h3>
+          <ul>
+            <li>Hook 承諾是否在前 10 秒被接住？</li>
+            <li>前 10 秒是否避免自我介紹、寒暄、抽象鋪陳？</li>
+            <li>Script 是否只解決一個具體問題？</li>
+            <li>中段是否有明確價值，而不是空泛說教？</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>信任與 CTA</h3>
+          <ul>
+            <li>是否至少有一個 Trust Signal？</li>
+            <li>是否避免誇大數據與保證結果？</li>
+            <li>CTA 前是否有合理鋪陳？</li>
+            <li>CTA 是否符合 CTA Safety Patch v1.1？</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="abtest">
+      <h2>07｜Script A/B Test</h2>
+      <div class="warning">
+        <strong>單一變量原則：</strong>一次只改 Script 的一個段落。不要同時改 Hook、Script、CTA，否則不知道是哪個因素造成數據變化。
+      </div>
+      <table>
+        <thead><tr><th>測試段落</th><th>主要指標</th><th>輔助指標</th></tr></thead>
+        <tbody>
+          <tr><td>Anchor Beat</td><td>10s Retention</td><td>Dips / AVD</td></tr>
+          <tr><td>Trust Signal</td><td>Retention / Interactions</td><td>DM Count</td></tr>
+          <tr><td>Value Core</td><td>Retention / Saves</td><td>留言品質</td></tr>
+          <tr><td>Gap Open</td><td>DM Count / CTA Action</td><td>Profile Visits</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="cta">
+      <h2>08｜Script → CTA / DM / Offer 對齊</h2>
+      <div class="tool-note"><strong>這張表怎麼用：</strong>先看你的 Script 類型，再選 CTA 與 DM 第一問。前端承諾和私訊第一句不能斷裂。</div>
+      <table>
+        <thead><tr><th>Script 類型</th><th>適合 CTA</th><th>DM 第一問方向</th><th>Offer 對應</th></tr></thead>
+        <tbody>
+          <tr><td>教學型</td><td>收藏型 / 延伸觀看型 / 私訊清單</td><td>你目前卡在哪一步？</td><td>LFA / 模板 / 小課</td></tr>
+          <tr><td>故事型</td><td>真實問題型 / 私訊承接型</td><td>你現在也遇到類似狀況嗎？</td><td>諮詢 / 陪跑</td></tr>
+          <tr><td>案例拆解型</td><td>私訊承接型 / 申請型</td><td>你想對照自己的狀況嗎？</td><td>中高客單服務</td></tr>
+          <tr><td>反直覺觀點型</td><td>討論型 / 私訊型 / 收藏型</td><td>你原本是怎麼判斷這件事的？</td><td>診斷 / 策略諮詢</td></tr>
+        </tbody>
+      </table>
+      <div class="danger">
+        禁用：留言 +1、留言數字、按讚解鎖、分享給三個朋友。這些屬於機械式互動誘導風險，不納入本手冊安全範例。
+      </div>
+    </section>
+
+    <section class="section" id="glossary">
+      <h2>📘 名詞快查</h2>
+      <div class="grid">
+        <div class="card"><h3>Anchor Beat</h3><p>Hook 後第一段，用來接住開頭承諾。白話：不要讓觀眾覺得被騙。</p></div>
+        <div class="card"><h3>Trust Signal</h3><p>讓觀眾相信你的證據，例如案例、過程、經驗、數據。</p></div>
+        <div class="card"><h3>Value Core</h3><p>影片中段真正交付價值的部分。白話：這支影片到底讓人得到什麼。</p></div>
+        <div class="card"><h3>Gap Open</h3><p>結尾前留下合理下一步，不是故意騙，而是把完整清單、工具或診斷留給 CTA。</p></div>
+        <div class="card"><h3>Retention Dips</h3><p>留存曲線突然掉下去。通常代表那個秒數附近有廢話、混亂、斷裂或資訊過載。</p></div>
+        <div class="card"><h3>AVD</h3><p>Average View Duration，平均觀看時長。用來看觀眾平均看多久。</p></div>
+        <div class="card"><h3>CTA Paving</h3><p>CTA 鋪陳。讓觀眾覺得下一步是自然延伸，而不是突然被推銷。</p></div>
+        <div class="card"><h3>Audience Mismatch</h3><p>受眾錯位。影片吸引到的人不是你真正想服務的人。</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="mapping">
+      <h2>⚙️ Screenwriter / v6.5 Tool Mapping</h2>
+      <h3>Screenwriter 建議新增 Script 欄位</h3>
+      <div class="code">{
+  "script_design": {
+    "script_structure_identity": "teaching / story / case_study / anti_intuition",
+    "anchor_beat_keywords": [],
+    "hook_script_alignment": "aligned / weak / broken",
+    "first_10s_promise_fulfilled": true,
+    "trust_signal_node": "vulnerability / case_evidence / process_show / data_evidence / none",
+    "value_core_type": "step / insight / case / mistake / framework",
+    "information_density": "low / balanced / overloaded",
+    "gap_open_marker": true,
+    "cta_paving_type": "question / dm_trigger / save / extend / application"
+  }
+}</div>
+      <h3>v6.5 建議接收 metadata</h3>
+      <div class="code">{
+  "script_metadata": {
+    "script_structure_identity": "",
+    "hook_script_alignment": "",
+    "trust_signal_node": "",
+    "value_core_type": "",
+    "gap_open_marker": true,
+    "cta_paving_type": "",
+    "performance_tracking": {
+      "retention_10s": null,
+      "retention_rate": null,
+      "average_view_duration": null,
+      "dips_observed": "",
+      "dm_count": null,
+      "interactions": null
+    }
+  }
+}</div>
+    </section>
+
+    <section class="section" id="source">
+      <h2>🔎 Evidence 分級與降級規則</h2>
+      <table>
+        <thead><tr><th>說法</th><th>正式處理</th></tr></thead>
+        <tbody>
+          <tr><td>每 3–5 秒必須有推進點</td><td><span class="pill amber">practical_inference</span></td></tr>
+          <tr><td>故事型一定比教學型轉化高</td><td><span class="pill purple">first_party_experiment</span></td></tr>
+          <tr><td>反直覺型長期 ROI 最高</td><td><span class="pill purple">first_party_experiment / strategic hypothesis</span></td></tr>
+          <tr><td>Meta 2026 指標更名</td><td><span class="pill blue">high_confidence</span></td></tr>
+          <tr><td>Clickbait 導致帳號全域降權</td><td><span class="pill red">刪除或降級</span></td></tr>
+          <tr><td>Script Density Score / Script Health Index</td><td><span class="pill red">刪除</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>AK Script Manual v1.0｜本工具為教材與內容規劃輔助，不保證流量或收益。</footer>
+  </main>
+</div>
+
+<script>
+function containsAny(text, arr){
+  const t = (text || '').toLowerCase();
+  return arr.some(x => t.includes(x.toLowerCase()));
+}
+function diagnoseScript(){
+  const hook = document.getElementById('hookText').value.trim();
+  const script = document.getElementById('scriptFirst').value.trim();
+  const scriptType = document.getElementById('scriptType').value;
+  const ctaType = document.getElementById('ctaType').value;
+  const ctr = parseFloat(document.getElementById('ctr').value);
+  const retention10 = parseFloat(document.getElementById('retention10').value);
+  const dmCount = parseFloat(document.getElementById('dmCount').value);
+  const result = document.getElementById('diagResult');
+
+  let issues = [];
+  let actions = [];
+  let score = 100;
+
+  const slowOpen = ['大家好','我是','今天想跟大家分享','歡迎來到','哈囉大家','今天來聊聊'];
+  const bannedCTA = ['留言+1','留言 +1','留言111','留言 111','按讚解鎖','按讚支持','分享給三個朋友','標記三個朋友'];
+  const overPromise = ['保證','100%','一夜暴富','絕對','必然','躺著賺','秒懂','永久','全網最強'];
+
+  if(!hook){ issues.push('尚未填 Hook，無法判斷 Script 是否接住承諾。'); score -= 10; }
+  if(!script){ issues.push('尚未填 Script 前 10 秒。'); score -= 20; }
+
+  if(containsAny(script, slowOpen)){
+    issues.push('Script 前 10 秒出現自我介紹或抽象開場，容易造成 Anchor Beat 斷裂。');
+    actions.push('刪掉寒暄，第一句直接回應 Hook 的核心問題。');
+    score -= 22;
+  }
+  if(containsAny(hook + ' ' + script, bannedCTA)){
+    issues.push('偵測到高風險 CTA 語句，可能違反 CTA Safety Patch v1.1。');
+    actions.push('改成真實問題型或私訊承接型 CTA，不使用留言數字或按讚解鎖。');
+    score -= 28;
+  }
+  if(containsAny(hook + ' ' + script, overPromise)){
+    issues.push('偵測到過度承諾語氣，需檢查 Clickbait 風險。');
+    actions.push('降低承諾強度，補上可驗證案例、條件或限制。');
+    score -= 18;
+  }
+
+  if(hook && script){
+    const hookWords = hook.replace(/[，。！？,.!?]/g,' ').split(/\s+/).filter(w => w.length >= 2).slice(0,8);
+    const matched = hookWords.filter(w => script.includes(w));
+    if(hookWords.length >= 2 && matched.length === 0){
+      issues.push('Script 前 10 秒沒有明顯接到 Hook 關鍵字，可能出現承諾斷裂。');
+      actions.push('把 Hook 的核心字詞放進 Script 第一段，例如痛點、對象或結果。');
+      score -= 18;
+    }
+  }
+
+  if(!isNaN(retention10) && retention10 < 35){
+    issues.push('前 10 秒留存偏低，優先檢查 Anchor Beat 是否接住 Hook。');
+    actions.push('重寫前 10 秒：刪掉背景鋪陳，直接給第一個洞察或證據。');
+    score -= 20;
+  }else if(!isNaN(retention10) && retention10 >= 60){
+    actions.push('前 10 秒留存看起來不錯，下一步可檢查中段 Value Core 與 CTA 鋪陳。');
+  }
+
+  if(!isNaN(dmCount) && dmCount === 0 && (!isNaN(retention10) && retention10 >= 50)){
+    issues.push('留存不差但沒有下一步行動，可能是 Gap Open 或 CTA 鋪陳不足。');
+    actions.push('在 CTA 前補一句合理下一步，例如「我把檢查表整理成一份，適合你寫腳本前對照」。');
+    score -= 14;
+  }
+
+  if(ctaType === 'dm' && scriptType === 'teaching'){
+    actions.push('教學型接私訊 CTA 時，避免直接索取；建議用「你目前卡在哪一步？」承接。');
+  }
+  if(ctaType === 'application' && (scriptType === 'teaching')){
+    issues.push('教學型腳本直接接申請 / 表單型 CTA 可能阻力過高。');
+    actions.push('先用清單、收藏或私訊診斷降低門檻。');
+    score -= 8;
+  }
+
+  let status = 'pass';
+  let title = '✅ 初步通過：Script 結構可用';
+  if(score < 70){ status='warn'; title='⚠️ 需要修正：Script 有明顯風險'; }
+  if(score < 45){ status='fail'; title='🚨 高風險：建議重寫前 10 秒'; }
+
+  if(issues.length === 0){
+    issues.push('未偵測到明顯高風險問題，但仍建議發布後回填 Retention / DM 數據驗證。');
+  }
+  if(actions.length === 0){
+    actions.push('發布後觀察前 10 秒留存、Dips、DM / 收藏 / 點擊，判斷下一支影片是否要改 Script。');
+  }
+
+  result.className = 'result ' + status;
+  result.style.display = 'block';
+  result.innerHTML = `
+    <h3>${title}</h3>
+    <div class="kv">
+      <div>診斷分數</div><div>${Math.max(0,score)} / 100</div>
+      <div>主要問題</div><div>${issues.map(x=>`• ${x}`).join('<br>')}</div>
+      <div>下一步建議</div><div>${actions.map(x=>`• ${x}`).join('<br>')}</div>
+      <div>建議追蹤</div><div>前 10 秒留存、Retention Dips、AVD、DM Count、Interactions / Saves</div>
+    </div>
+  `;
+}
+function resetForm(){
+  ['hookText','scriptFirst','ctr','retention10','dmCount'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('diagResult').style.display='none';
+}
+</script>
+</body>
+</html>
