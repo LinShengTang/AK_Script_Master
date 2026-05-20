@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AK Script Manual｜Ch2 腳本承諾兌現與留存診斷</title>
+<title>AK Script Manual｜Ch2 腳本承諾兌現與留存診斷｜Platform Safety Patch v1.0</title>
 <style>
 :root{
   --bg:#0f172a;
@@ -131,6 +131,7 @@ footer{color:#cbd5e1;text-align:center;margin:30px 0 10px;font-size:13px}
   .section,.hero{box-shadow:none;border:1px solid #ddd}
 }
 </style>
+<!-- AK_Platform_Safety_Patch_v1.0 -->
 </head>
 <body>
 <div class="layout">
@@ -151,6 +152,7 @@ footer{color:#cbd5e1;text-align:center;margin:30px 0 10px;font-size:13px}
       <a href="#glossary">📘 名詞快查</a>
       <a href="#mapping">⚙️ Tool Mapping</a>
       <a href="#source">🔎 Evidence 分級</a>
+    <a href="#platform-safety">Safety</a>
     </div>
   </aside>
 
@@ -465,7 +467,29 @@ footer{color:#cbd5e1;text-align:center;margin:30px 0 10px;font-size:13px}
       </table>
     </section>
 
-    <footer>AK Script Manual v1.0｜本工具為教材與內容規劃輔助，不保證流量或收益。</footer>
+    
+    <section class="section" id="platform-safety">
+      <h2>Platform Safety｜Claim Delivery Guard</h2>
+      <p>Script 的安全任務，是兌現 Hook 承諾，不讓內容變成標題黨、空話或無證據成效宣稱。</p>
+      <div class="grid">
+        <div class="card">
+          <h3>發布前檢查</h3>
+          <ul>
+            <li>Hook 提出的問題，Script 是否真的回答？</li>
+            <li>標題 / 縮圖 / 第一秒是否在影片中被兌現？</li>
+            <li>是否使用「保證、必爆、月入、幾天漲粉」等無證據承諾？</li>
+            <li>是否把 practical_inference 說成 official？</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>安全改寫</h3>
+          <div class="code">高風險：照做 3 天漲粉 1000。
+安全版：這 3 個檢查點能幫你判斷內容是否卡在第一句、主題錨點或受眾代入。</div>
+        </div>
+      </div>
+    </section>
+
+<footer>AK Script Manual v1.0｜本工具為教材與內容規劃輔助，不保證流量或收益。</footer>
   </main>
 </div>
 
